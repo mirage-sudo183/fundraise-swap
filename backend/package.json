@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc && npm run copy-assets",
-    "copy-assets": "mkdir -p dist/db dist/data && cp src/db/*.sql dist/db/ && cp ../fundraising-data/*.csv dist/data/",
+    "copy-assets": "mkdir -p dist/db dist/data && cp src/db/*.sql dist/db/ && cp data/*.csv dist/data/",
     "start": "node dist/index.js"
   },
   "dependencies": {
