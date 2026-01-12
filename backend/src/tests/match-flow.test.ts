@@ -68,11 +68,11 @@ async function request<T>(
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(`${response.status}: ${error.error || 'Request failed'}`);
+    const errorData = await response.json().catch(() => ({ error: 'Request failed' })) as { error?: string };
+    throw new Error(`${response.status}: ${errorData.error || 'Request failed'}`);
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 function log(message: string, data?: any) {
