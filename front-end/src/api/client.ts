@@ -89,19 +89,40 @@ export interface MatchDetailResponse {
   fundraise: Fundraise;
 }
 
-// Token storage
+// Token storage with fallback for restricted contexts
 const TOKEN_KEY = 'fundraise_swap_token';
+let memoryToken: string | null = null;
+
+function isStorageAvailable(): boolean {
+  try {
+    const test = '__storage_test__';
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  if (isStorageAvailable()) {
+    return localStorage.getItem(TOKEN_KEY);
+  }
+  return memoryToken;
 }
 
 function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+  memoryToken = token;
+  if (isStorageAvailable()) {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
 }
 
 function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  memoryToken = null;
+  if (isStorageAvailable()) {
+    localStorage.removeItem(TOKEN_KEY);
+  }
 }
 
 // API methods
