@@ -7,7 +7,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 // Pages
 import Home from './pages/Home';
 import Login from './pages/Login';
-import WorkspaceSetup from './pages/WorkspaceSetup';
 import Settings from './pages/Settings';
 import Inbox from './pages/Inbox';
 import MatchDetail from './pages/MatchDetail';
@@ -25,7 +24,7 @@ function LoadingScreen() {
 
 // Protected route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading, workspace } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -33,11 +32,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
-  }
-
-  // If authenticated but no workspace, redirect to workspace setup
-  if (!workspace) {
-    return <Navigate to="/workspace-setup" replace />;
   }
 
   return <>{children}</>;
@@ -80,7 +74,6 @@ function AppContent({ bypassDeviceGate }: { bypassDeviceGate: boolean }) {
           }
         />
         <Route path="/login" element={<Login />} />
-        <Route path="/workspace-setup" element={<WorkspaceSetup />} />
         <Route
           path="/settings"
           element={

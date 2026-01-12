@@ -12,7 +12,7 @@ interface AvailableUser {
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, isAuthenticated, workspace, isLoading: authLoading } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const [users, setUsers] = useState<AvailableUser[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -43,10 +43,7 @@ export default function Login() {
   }
 
   if (isAuthenticated) {
-    if (workspace) {
-      return <Navigate to="/" replace />;
-    }
-    return <Navigate to="/workspace-setup" replace />;
+    return <Navigate to="/" replace />;
   }
 
   const handleSelectUser = async (userName: string) => {
