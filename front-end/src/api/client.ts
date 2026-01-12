@@ -92,36 +92,63 @@ export interface MatchDetailResponse {
 // Token storage with fallback for restricted contexts
 const TOKEN_KEY = 'fundraise_swap_token';
 let memoryToken: string | null = null;
+let storageAvailable: boolean | null = null;
+
+function getStorage(): Storage | null {
+  try {
+    const storage = typeof window !== 'undefined' ? window.localStorage : null;
+    if (storage) {
+      const test = '__storage_test__';
+      storage.setItem(test, test);
+      storage.removeItem(test);
+      return storage;
+    }
+  } catch {
+    // Storage not available
+  }
+  return null;
+}
 
 function isStorageAvailable(): boolean {
-  try {
-    const test = '__storage_test__';
-    localStorage.setItem(test, test);
-    localStorage.removeItem(test);
-    return true;
-  } catch {
-    return false;
+  if (storageAvailable === null) {
+    storageAvailable = getStorage() !== null;
   }
+  return storageAvailable;
 }
 
 function getToken(): string | null {
-  if (isStorageAvailable()) {
-    return localStorage.getItem(TOKEN_KEY);
+  try {
+    const storage = getStorage();
+    if (storage) {
+      return storage.getItem(TOKEN_KEY);
+    }
+  } catch {
+    // Fall through to memory
   }
   return memoryToken;
 }
 
 function setToken(token: string): void {
   memoryToken = token;
-  if (isStorageAvailable()) {
-    localStorage.setItem(TOKEN_KEY, token);
+  try {
+    const storage = getStorage();
+    if (storage) {
+      storage.setItem(TOKEN_KEY, token);
+    }
+  } catch {
+    // Memory fallback already set
   }
 }
 
 function clearToken(): void {
   memoryToken = null;
-  if (isStorageAvailable()) {
-    localStorage.removeItem(TOKEN_KEY);
+  try {
+    const storage = getStorage();
+    if (storage) {
+      storage.removeItem(TOKEN_KEY);
+    }
+  } catch {
+    // Memory already cleared
   }
 }
 
