@@ -4,21 +4,31 @@ import App from './App'
 import './index.css'
 
 // Polyfill for browsers that block localStorage (iOS Safari via IP, private mode, etc.)
+const noopStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+  clear: () => {},
+  length: 0,
+  key: () => null,
+};
+
 try {
-  const test = '__storage_test__';
-  localStorage.setItem(test, test);
-  localStorage.removeItem(test);
-} catch (e) {
-  const noopStorage = {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {},
-    length: 0,
-    key: () => null,
-  };
-  Object.defineProperty(window, 'localStorage', { value: noopStorage });
-  Object.defineProperty(window, 'sessionStorage', { value: noopStorage });
+  const storage = window.localStorage;
+  if (storage) {
+    const test = '__storage_test__';
+    storage.setItem(test, test);
+    storage.removeItem(test);
+  } else {
+    throw new Error('localStorage not available');
+  }
+} catch {
+  try {
+    Object.defineProperty(window, 'localStorage', { value: noopStorage, writable: true });
+    Object.defineProperty(window, 'sessionStorage', { value: noopStorage, writable: true });
+  } catch {
+    // Can't override, that's ok - our API client has its own fallback
+  }
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
