@@ -183,8 +183,8 @@ export default function Home() {
     []
   );
 
-  // Get visible cards (current + next for stacking effect)
-  const visibleCards = feed.slice(cursor, cursor + 2);
+  // Get visible cards (current + next 2 for smooth stacking effect)
+  const visibleCards = feed.slice(cursor, cursor + 3).reverse();
 
   // Loading state
   if (isLoading) {
@@ -299,15 +299,19 @@ export default function Home() {
       <main className="flex-1 w-full flex items-center justify-center min-h-0 relative px-4 py-4">
         <div className="relative w-full max-w-[360px] h-full max-h-[600px] grid place-items-center">
           <AnimatePresence>
-            {visibleCards.map((card, index) => (
-              <SwipeCard
-                key={card.id}
-                ref={index === 0 ? swipeCardRef : null}
-                data={card}
-                active={index === 0 && !isSwiping}
-                onSwipe={handleSwipe}
-              />
-            ))}
+            {visibleCards.map((card, index) => {
+              const isTopCard = index === visibleCards.length - 1;
+              return (
+                <SwipeCard
+                  key={card.id}
+                  ref={isTopCard ? swipeCardRef : null}
+                  data={card}
+                  active={isTopCard && !isSwiping}
+                  onSwipe={handleSwipe}
+                  stackIndex={visibleCards.length - 1 - index}
+                />
+              );
+            })}
           </AnimatePresence>
         </div>
       </main>

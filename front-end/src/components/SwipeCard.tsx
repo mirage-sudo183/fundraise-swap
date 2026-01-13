@@ -1,20 +1,21 @@
 import React, { useImperativeHandle, forwardRef } from 'react';
 import { motion, useMotionValue, useTransform, useAnimation, PanInfo } from 'framer-motion';
 import { Fundraise, SwipeDirection } from '../types';
-import { DollarSign, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface SwipeCardProps {
   data: Fundraise;
   active: boolean;
   onSwipe: (direction: SwipeDirection) => void;
+  stackIndex?: number;
 }
 
 export interface SwipeCardRef {
   triggerSwipe: (direction: SwipeDirection) => void;
 }
 
-export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({ data, active, onSwipe }, ref) => {
+export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({ data, active, onSwipe, stackIndex = 0 }, ref) => {
   const controls = useAnimation();
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
@@ -51,20 +52,27 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({ data, activ
     }
   };
 
+  // Stack visual effect - cards behind are slightly smaller and offset
+  const scale = 1 - stackIndex * 0.03;
+  const yOffset = stackIndex * 8;
+
   return (
     <motion.div
       style={{
         gridArea: '1 / 1 / 1 / 1',
         x,
-        rotate,
-        opacity,
-        zIndex: active ? 10 : 0,
+        rotate: active ? rotate : 0,
+        opacity: active ? opacity : 1,
+        zIndex: 10 - stackIndex,
         pointerEvents: active ? 'auto' : 'none',
+        scale,
+        y: yOffset,
       }}
       drag={active ? 'x' : false}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       onDragEnd={handleDragEnd}
       animate={controls}
+      initial={{ scale, y: yOffset }}
       className="w-full h-full absolute inset-0 touch-none select-none"
     >
       <div className="relative w-full h-full bg-card border border-border rounded-3xl shadow-2xl overflow-hidden flex flex-col">
@@ -129,8 +137,8 @@ export const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(({ data, activ
             <div className="grid grid-cols-2 gap-4 pt-5 border-t border-border">
               <div>
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider block mb-1.5">Amount</span>
-                <span className="text-xl font-bold text-foreground flex items-center gap-1">
-                  <DollarSign size={18} className="text-primary" /> {data.amount}
+                <span className="text-xl font-bold text-foreground">
+                  {data.amount}
                 </span>
               </div>
               <div>
